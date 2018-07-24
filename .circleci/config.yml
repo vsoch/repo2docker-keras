@@ -5,6 +5,11 @@ jobs:
   # continuous build. We have added the section to calculate container similarity
   # metrics, and deploy the metrics back to the repository (on Github pages)
   # as an image manifest.
+  # https://github.com/vsoch/continuous-build/tree/support/singularity/.circleci
+
+  # In addition to the variables defined above, you should set the GITHUB_EMAIL
+  # to be the email associated with the repo (for deploy to Github pages).
+  # if not set, this step won't be done
   setup:
     environment:
       - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
@@ -200,23 +205,54 @@ jobs:
           name: Generate Inspection Manifest
           no_output_timeout: 40m
           command: |
-            echo "Generating Container Manifest"
-            if [ ! -n "${DOCKER_TAG:-}" ]
+
+            if [[ -n "${GITHUB_EMAIL:-}" ]];
+
                 then
-                    DOCKER_TAG=$(echo "${CIRCLE_SHA1}" | cut -c1-10)
+                echo "=== Deploying manifests to Github Pages ==="
+
+                # Set username and email to deploy with
+                git config --global user.email $GITHUB_EMAIL
+                git config --global user.name $CIRCLE_PROJECT_USERNAME
+
+                echo "Generating Container Manifest"
+                if [ ! -n "${DOCKER_TAG:-}" ]
+                    then
+                        DOCKER_TAG=$(echo "${CIRCLE_SHA1}" | cut -c1-10)
+                fi
+                # If not set, define CONTAINER_NAME
+                if [[ ! -n "${CONTAINER_NAME:-}" ]]
+                    then
+                        CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+                fi
+                echo "1. Checking out Github pages branch"
+                git clone $CIRCLE_REPOSITORY_URL out
+                cd out
+                # either checkout github pages, or create orphan
+                git checkout gh-pages || git checkout --orphan gh-pages
+                git rm -rf .
+                # ensure that github pages are ignored
+                mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
+                echo "2. Generating manifest for latest..."
+                docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} >> manifest-latest.json
+                for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
+                  do
+                      # if the manifest doesn't exist, generate it
+                      DOCKER_MANIFEST="manifest-${tag}.json"
+                      if [ ! -f "${DOCKER_MANIFEST}" ];
+                        then
+                          echo "Generating manifest for ${DOCKER_MANIFEST}";
+                          docker pull "${CONTAINER_NAME}:${tag}"
+                          docker inspect "${CONTAINER_NAME}:${tag}" >> "${DOCKER_MANIFEST}";
+                          echo "${tag}" >> manifest.json;
+                      fi
+                done
+                git add -A;
+                git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
+                git push origin gh-pages
+            else
+                echo "GITHUB_EMAIL not set, skipping manifest deploy to Github pages"
             fi
-            # If not set, define CONTAINER_NAME
-            if [[ ! -n "${CONTAINER_NAME:-}" ]]
-                then
-                    CONTAINER_NAME="${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
-            fi
-            docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} >> manifest.json
-            # TODO clone github pages
-            # get all available tags of a container
-            # if github pages doesn't exist
-            #    then need to generate set of manifests for existing containers
-            # generate a master file that points to manifest for each one
-            # manifest.json should be the latest
 
 workflows:
   version: 2
@@ -233,6 +269,7 @@ workflows:
           filters:
             branches:
               ignore: /docs?\/.*/
+              ignore: gh-pages
             tags:
               only: /.*/
 
@@ -243,15 +280,18 @@ workflows:
           filters:
             branches:
               ignore: /docs?\/.*/
+              ignore: gh-pages
             tags:
               only: /.*/
 
       # Push the manifest back to Github pages
       - manifest:
           requires:
+            - build
             - deploy
           filters:
             branches:
               ignore: /docs?\/.*/
+              ignore: gh-pages
             tags:
               only: /.*/
