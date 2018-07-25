@@ -8,6 +8,19 @@
 # to be the email associated with the repo (for deploy to Github pages).
 # if not set, this step won't be done
 
+dockerload: &run
+    name: Load Docker container Image
+    no_output_timeout: 30m
+    command: |
+    echo "Working directory is ${PWD}"
+    docker info
+    set +o pipefail
+    if [ -f /tmp/cache/container.tar.gz ]; then
+        sudo apt update && sudo apt -y install pigz
+        pigz -d --stdout /tmp/cache/container.tar.gz | docker load
+        docker images
+    fi
+
 version: 2
 jobs:
   setup:
@@ -40,10 +53,7 @@ jobs:
           key: dependency-cache-repo2docker
       - checkout
       - setup_remote_docker
-      - run:
-          name: Load Docker image layer cache
-          no_output_timeout: 30m
-          <<: *dockerload
+      - run: *dockerload
       - run:
           name: Run jupyter-repo2docker to generate Docker Container
           no_output_timeout: 60m
@@ -141,10 +151,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      - run:
-          name: Load Docker image layer cache
-          no_output_timeout: 30m
-          command: *dockerload
+      - run: *dockerload
       - run:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
@@ -175,10 +182,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      - run:
-          name: Load Docker image layer cache
-          no_output_timeout: 30m
-          command: &dockerload
+      - run: *dockerload
       - run:
           name: Generate Inspection Manifest
           no_output_timeout: 40m
@@ -273,13 +277,3 @@ workflows:
               ignore: gh-pages
             tags:
               only: /.*/
-
-dockerload: &command |
-    echo "Working directory is ${PWD}"
-    docker info
-    set +o pipefail
-    if [ -f /tmp/cache/container.tar.gz ]; then
-        sudo apt update && sudo apt -y install pigz
-        pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-        docker images
-    fi
