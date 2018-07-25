@@ -69,7 +69,6 @@ jobs:
   build:
     <<: *defaults
     steps:
-      - run: *loadenv
       - run:
           name: Install parallel gzip and python3
           command: apk add --no-cache pigz python3
@@ -82,6 +81,7 @@ jobs:
           key: dependency-cache-repo2docker
       - checkout
       - setup_remote_docker
+      - run: *loadenv
       - run: *dockerload
       - run:
           name: Run jupyter-repo2docker to generate Docker Container
@@ -162,6 +162,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
+      - run: *loadenv
       - run: *dockerload
       - run:
           name: Generate Inspection Manifest
