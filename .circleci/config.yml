@@ -8,6 +8,14 @@
 # to be the email associated with the repo (for deploy to Github pages).
 # if not set, this step won't be done
 
+defaults: &defaults
+  docker:
+    - image: docker:18.01.0-ce-git
+  working_directory: /tmp/src
+  environment:
+    - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+
+
 dockerload: &run
     name: Load Docker container Image
     no_output_timeout: 30m
@@ -24,22 +32,14 @@ dockerload: &run
 version: 2
 jobs:
   setup:
-    environment:
-      - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
-    docker:
-      - image: docker:18.01.0-ce-git
-      - image: circleci/python:3.6.1
+    <<: *defaults
     steps:
       - run:
           name: Test if the user has defined the repository name
           command: apk add --no-cache pigz python3
 
   build:
-    environment:
-      - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
-    docker:
-      - image: docker:18.01.0-ce-git
-    working_directory: /tmp/src
+    <<: *defaults
     steps:
       - run:
           name: Install parallel gzip and python3
@@ -132,10 +132,7 @@ jobs:
             - src
 
   update_cache:
-    machine:
-      # Ubuntu 14.04 with Docker 17.10.0-ce
-      image: circleci/classic:201711-01
-    working_directory: /tmp/src
+    <<: *defaults
     steps:
       - attach_workspace:
           at: /tmp
@@ -176,9 +173,7 @@ jobs:
             fi
 
   manifest:
-    machine:
-      image: circleci/classic:201711-01
-    working_directory: /tmp/src
+    <<: *defaults
     steps:
       - attach_workspace:
           at: /tmp
@@ -251,7 +246,6 @@ workflows:
           filters:
             branches:
               ignore: /docs?\/.*/
-              ignore: gh-pages
             tags:
               only: /.*/
 
@@ -262,7 +256,6 @@ workflows:
           filters:
             branches:
               ignore: /docs?\/.*/
-              ignore: gh-pages
             tags:
               only: /.*/
 
