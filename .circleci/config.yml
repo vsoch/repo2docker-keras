@@ -15,7 +15,7 @@ defaults: &defaults
   environment:
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
-
+# TODO: test if I can remove this from sections (and then just source it...)
 loadenv: &loadenv
     name: Define container and Docker names
     command: |
@@ -51,7 +51,7 @@ dockerload: &dockerload
       docker info
       set +o pipefail
       if [ -f /tmp/cache/container.tar.gz ]; then
-          apt update && apt -y install pigz
+          apk update && apk -y install pigz
           pigz -d --stdout /tmp/cache/container.tar.gz | docker load
           docker images
       fi
@@ -65,6 +65,15 @@ jobs:
       - run:
           name: Test if the user has defined the repository name
           command: apk add --no-cache pigz python3
+      - run:
+          name: Prepare Github account credentials
+          command: |
+            if [[ -n "${GITHUB_EMAIL:-}" ]];
+                echo "Preparing Github account credentials"
+                # Set username and email to deploy with
+                git config --global user.email $GITHUB_EMAIL
+                git config --global user.name $CIRCLE_PROJECT_USERNAME
+            fi
 
   build:
     <<: *defaults
@@ -174,11 +183,6 @@ jobs:
 
                 then
                 echo "=== Deploying manifests to Github Pages ==="
-
-                # Set username and email to deploy with
-                git config --global user.email $GITHUB_EMAIL
-                git config --global user.name $CIRCLE_PROJECT_USERNAME
-
                 echo "Generating Container Manifest"
                 echo "1. Checking out Github pages branch"
                 git clone $CIRCLE_REPOSITORY_URL out
