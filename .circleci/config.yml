@@ -1,15 +1,25 @@
+# This is derived from the config.singularity.yml recipe provided by
+# continuous build. We have added the section to calculate container similarity
+# metrics, and deploy the metrics back to the repository (on Github pages)
+# as an image manifest.
+# https://github.com/vsoch/continuous-build/tree/support/singularity/.circleci
+
+# In addition to the variables defined above, you should set the GITHUB_EMAIL
+# to be the email associated with the repo (for deploy to Github pages).
+# if not set, this step won't be done
+
+dockerload: &command |
+    echo "Working directory is ${PWD}"
+    docker info
+    set +o pipefail
+    if [ -f /tmp/cache/container.tar.gz ]; then
+        sudo apt update && sudo apt -y install pigz
+        pigz -d --stdout /tmp/cache/container.tar.gz | docker load
+        docker images
+    fi
+
 version: 2
 jobs:
-
-  # This is derived from the config.singularity.yml recipe provided by
-  # continuous build. We have added the section to calculate container similarity
-  # metrics, and deploy the metrics back to the repository (on Github pages)
-  # as an image manifest.
-  # https://github.com/vsoch/continuous-build/tree/support/singularity/.circleci
-
-  # In addition to the variables defined above, you should set the GITHUB_EMAIL
-  # to be the email associated with the repo (for deploy to Github pages).
-  # if not set, this step won't be done
   setup:
     environment:
       - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
@@ -43,13 +53,7 @@ jobs:
       - run:
           name: Load Docker image layer cache
           no_output_timeout: 30m
-          command: |
-            docker info
-            set +o pipefail
-            if [ -f /tmp/cache/container.tar.gz ]; then
-              pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-            fi
-            docker images
+          <<: *dockerload
       - run:
           name: Run jupyter-repo2docker to generate Docker Container
           no_output_timeout: 60m
@@ -150,15 +154,7 @@ jobs:
       - run:
           name: Load Docker image layer cache
           no_output_timeout: 30m
-          command: |
-            echo "Working directory is ${PWD}"
-            docker info
-            set +o pipefail
-            if [ -f /tmp/cache/container.tar.gz ]; then
-              sudo apt update && sudo apt -y install pigz
-              pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-              docker images
-            fi
+          command: *dockerload
       - run:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
@@ -192,15 +188,7 @@ jobs:
       - run:
           name: Load Docker image layer cache
           no_output_timeout: 30m
-          command: |
-            echo "Working directory is ${PWD}"
-            docker info
-            set +o pipefail
-            if [ -f /tmp/cache/container.tar.gz ]; then
-              sudo apt update && sudo apt -y install pigz
-              pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-              docker images
-            fi
+          command: &dockerload
       - run:
           name: Generate Inspection Manifest
           no_output_timeout: 40m
@@ -244,7 +232,7 @@ jobs:
                           echo "Generating manifest for ${DOCKER_MANIFEST}";
                           docker pull "${CONTAINER_NAME}:${tag}"
                           docker inspect "${CONTAINER_NAME}:${tag}" >> "${DOCKER_MANIFEST}";
-                          echo "${tag}" >> manifest.json;
+                          echo "${tag}" >> tags.json;
                       fi
                 done
                 git add -A;
