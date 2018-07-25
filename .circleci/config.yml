@@ -16,7 +16,7 @@ defaults: &defaults
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
 
-dockerload: &run
+dockerload: &dockerload
     name: Load Docker container Image
     no_output_timeout: 30m
     command: | 
