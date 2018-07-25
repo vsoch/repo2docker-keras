@@ -8,16 +8,6 @@
 # to be the email associated with the repo (for deploy to Github pages).
 # if not set, this step won't be done
 
-dockerload: &command |
-    echo "Working directory is ${PWD}"
-    docker info
-    set +o pipefail
-    if [ -f /tmp/cache/container.tar.gz ]; then
-        sudo apt update && sudo apt -y install pigz
-        pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-        docker images
-    fi
-
 version: 2
 jobs:
   setup:
@@ -283,3 +273,13 @@ workflows:
               ignore: gh-pages
             tags:
               only: /.*/
+
+dockerload: &command |
+    echo "Working directory is ${PWD}"
+    docker info
+    set +o pipefail
+    if [ -f /tmp/cache/container.tar.gz ]; then
+        sudo apt update && sudo apt -y install pigz
+        pigz -d --stdout /tmp/cache/container.tar.gz | docker load
+        docker images
+    fi
