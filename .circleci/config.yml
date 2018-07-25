@@ -37,7 +37,6 @@ loadenv: &loadenv
             echo "Repository name found defined for build: ${REPO_NAME}"
         fi
         # export to bash environment
-        echo "export NOTEBOOK_USERNAME=${NOTEBOOK_USERNAME}" >> ${BASH_ENV}
         echo "export CONTAINER_NAME=${CONTAINER_NAME}" >> ${BASH_ENV}
         echo "export DOCKER_TAG=${DOCKER_TAG}" >> ${BASH_ENV}
         echo "export REPO_NAME=${REPO_NAME}" >> ${BASH_ENV}
@@ -104,7 +103,6 @@ jobs:
             if [ ! -n "${NOTEBOOK_USERNAME:-}" ]; then
                 NOTEBOOK_USERNAME=joyvan;
             fi
-            cat ${BASH_ENV}
             source ${BASH_ENV}
             echo "2. Running jupyter-repo2docker..."
             echo "jupyter-repo2docker --debug --user-name ${NOTEBOOK_USERNAME} --user-id 1000 --no-run --image-name ${CONTAINER_NAME}:${DOCKER_TAG} ${REPO_NAME}"
