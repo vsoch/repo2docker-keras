@@ -69,6 +69,7 @@ jobs:
   build:
     <<: *defaults
     steps:
+      - run: *loadenv
       - run:
           name: Install parallel gzip and python3
           command: apk add --no-cache pigz python3
@@ -94,7 +95,6 @@ jobs:
             echo "repo2docker version: ${VERSION}"
             echo "1. Preparing building environment"
             echo "Working directory is ${PWD}"
-            source ${BASH_ENV}
             # If not set, define NOTEBOOK_PERMISSION
             if [ ! -n "${NOTEBOOK_PERMISSION:-}" ]; then
                 NOTEBOOK_PERMISSION=777;
@@ -117,7 +117,6 @@ jobs:
           name: Docker Save
           no_output_timeout: 40m
           command: |
-            source ${BASH_ENV}
             echo "Saving ${CONTAINER_NAME}:${DOCKER_TAG} to container.tar.gz"
             mkdir -p /tmp/cache
             docker save ${CONTAINER_NAME}:${DOCKER_TAG} \
@@ -143,12 +142,12 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
+      - run: *loadenv
       - run: *dockerload
       - run:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
           command: |
-            source ${BASH_ENV}
             echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -179,7 +178,6 @@ jobs:
                 git config --global user.name $CIRCLE_PROJECT_USERNAME
 
                 echo "Generating Container Manifest"
-                source ${BASH_ENV}
                 echo "1. Checking out Github pages branch"
                 git clone $CIRCLE_REPOSITORY_URL out
                 cd out
