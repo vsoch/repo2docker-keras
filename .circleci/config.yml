@@ -44,6 +44,7 @@ loadenv: &loadenv
         source ${BASH_ENV}
 
 dockerload: &dockerload
+    <<: *defaults
     name: Load Docker container Image
     no_output_timeout: 30m
     command: | 
