@@ -127,6 +127,7 @@ jobs:
           name: Docker Save
           no_output_timeout: 40m
           command: |
+            source ${BASH_ENV}
             echo "Saving ${CONTAINER_NAME}:${DOCKER_TAG} to container.tar.gz"
             mkdir -p /tmp/cache
             docker save ${CONTAINER_NAME}:${DOCKER_TAG} \
