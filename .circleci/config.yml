@@ -6,7 +6,7 @@
 
 # In addition to the variables defined above, you should set the GITHUB_EMAIL
 # to be the email associated with the repo (for deploy to Github pages).
-# if not set, this step won't be done
+# if not set, this step won't be done 
 
 defaults: &defaults
   docker:
