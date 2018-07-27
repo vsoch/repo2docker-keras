@@ -93,21 +93,6 @@ jobs:
       - setup_remote_docker
       - run: *loadenv
       - run:
-          name: Load Docker container Image
-          no_output_timeout: 30m
-          command: | 
-            echo "Working directory is ${PWD}"
-            docker info
-            set +o pipefail
-            if [ -f /tmp/cache/container.tar.gz ]; then
-                apk update && apk add --no-cache pigz
-                pigz -d --stdout /tmp/cache/container.tar.gz | docker load
-                docker images
-            fi
-            ls /tmp
-            ls /tmp/cache
-            which docker
-      - run:
           name: Run jupyter-repo2docker to generate Docker Container
           no_output_timeout: 60m
           command: |
