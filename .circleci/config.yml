@@ -68,7 +68,7 @@ dockerload: &dockerload
       docker info
       set +o pipefail
       if [ -f /tmp/cache/container.tar.gz ]; then
-          apk update && apk add --no-cache pigz curl
+          apk update && apk add --no-cache pigz curl curl-dev
           pigz -d --stdout /tmp/cache/container.tar.gz | docker load
           docker images
       fi
