@@ -223,6 +223,8 @@ jobs:
       - run: *loadenv
       - run: *dockerload
       - run: *containerdiff
+      - run: *githubsetup
+      - run: *installpigz
       - add_ssh_keys: 
           fingerprints: 
             - "d4:37:a4:3b:1e:ea:eb:6a:b7:e3:0a:52:e2:8c:ac:d0"
