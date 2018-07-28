@@ -264,6 +264,7 @@ jobs:
                           fi
                     done
                     git add -A;
+                    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
                     git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
                     git push origin gh-pages
             else
