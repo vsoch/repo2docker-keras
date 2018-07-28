@@ -162,8 +162,8 @@ jobs:
           name: Deploy to Docker Hub
           no_output_timeout: 40m
           command: |
-            echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
             source ${BASH_ENV}
+            echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
                   docker push ${CONTAINER_NAME}:${DOCKER_TAG}
@@ -183,7 +183,7 @@ jobs:
           name: Generate Inspection Manifest
           no_output_timeout: 40m
           command: |
-
+            source ${BASH_ENV}
             if [[ -n "${GITHUB_EMAIL:-}" ]];
 
                 then
