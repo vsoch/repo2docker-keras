@@ -4,7 +4,9 @@
         "RepoTags": [
             "vanessa/repo2docker-keras:c5e3f74d60"
         ],
-        "RepoDigests": [],
+        "RepoDigests": [
+            "vanessa/repo2docker-keras@sha256:4289738a19379e14e70a38d4bf3bbb1040cdd0f06e72b070e8ebe4c22e224fb1"
+        ],
         "Parent": "",
         "Comment": "",
         "Created": "2018-07-28T20:21:17.967442167Z",
