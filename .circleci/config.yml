@@ -47,11 +47,20 @@ loadenv: &loadenv
         echo "export DOCKER_TAG=${DOCKER_TAG}" >> ${BASH_ENV}
         echo "export REPO_NAME=${REPO_NAME}" >> ${BASH_ENV}
         cat ${BASH_ENV}
-        source ${BASH_ENV}
+
+
+containerdiff: &containerdiff
+    name: Download and add container-diff to path
+    command: |
+        curl -LO https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64
+        chmod +x container-diff-linux-amd64
+        mkdir -p /tmp/bin
+        export PATH="/tmp/bin:${PATH}"
+        # export to bash environment
+        echo "export PATH=${PATH}" >> ${BASH_ENV}
 
 
 dockerload: &dockerload
-    <<: *defaults
     name: Load Docker container Image
     no_output_timeout: 30m
     command: | 
@@ -62,6 +71,21 @@ dockerload: &dockerload
           apk update && apk add --no-cache pigz
           pigz -d --stdout /tmp/cache/container.tar.gz | docker load
           docker images
+      fi
+
+
+dockerdeploy: &dockerdeploy
+    name: Deploy to Docker Hub
+    no_output_timeout: 40m
+    command: |
+      source ${BASH_ENV}
+      echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
+      if [[ -n "$DOCKER_PASS" ]]; then
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push ${CONTAINER_NAME}:${DOCKER_TAG}
+            echo "Tagging latest image..."
+            docker tag ${CONTAINER_NAME}:${DOCKER_TAG} ${CONTAINER_NAME}:latest
+           docker push ${CONTAINER_NAME}:latest
       fi
 
 
@@ -169,19 +193,7 @@ jobs:
       - setup_remote_docker
       - run: *loadenv
       - run: *dockerload
-      - run:
-          name: Deploy to Docker Hub
-          no_output_timeout: 40m
-          command: |
-            source ${BASH_ENV}
-            echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
-            if [[ -n "$DOCKER_PASS" ]]; then
-                  docker login -u $DOCKER_USER -p $DOCKER_PASS
-                  docker push ${CONTAINER_NAME}:${DOCKER_TAG}
-                  echo "Tagging latest image..."
-                  docker tag ${CONTAINER_NAME}:${DOCKER_TAG} ${CONTAINER_NAME}:latest
-                  docker push ${CONTAINER_NAME}:latest
-            fi
+      - run: *dockerdeploy
 
   manifest:
     <<: *defaults
@@ -191,11 +203,17 @@ jobs:
       - setup_remote_docker
       - run: *loadenv
       - run: *dockerload
+      - run: *containerdiff
+      - add_ssh_keys: 
+          fingerprints: 
+            - "d4:37:a4:3b:1e:ea:eb:6a:b7:e3:0a:52:e2:8c:ac:d0"
       - run:
           name: Generate Inspection Manifest
           no_output_timeout: 40m
           command: |
             source ${BASH_ENV}
+            ls /tmp/bin
+            which container-diff-linux-amd64
             if [[ -n "${GITHUB_EMAIL:-}" ]];
 
                 then
@@ -248,6 +266,8 @@ workflows:
       - update_cache:
           requires:
             - build
+            - deploy
+            - manifest
           filters:
             branches:
               ignore: /docs?\/.*/
