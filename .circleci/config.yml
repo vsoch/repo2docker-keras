@@ -163,6 +163,7 @@ jobs:
           no_output_timeout: 40m
           command: |
             echo "Container name set to ${CONTAINER_NAME}:${DOCKER_TAG}"
+            source ${BASH_ENV}
             if [[ -n "$DOCKER_PASS" ]]; then
                   docker login -u $DOCKER_USER -p $DOCKER_PASS
                   docker push ${CONTAINER_NAME}:${DOCKER_TAG}
