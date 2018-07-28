@@ -8,6 +8,12 @@
 # to be the email associated with the repo (for deploy to Github pages).
 # if not set, this step won't be done 
 
+
+################################################################################
+# Functions
+################################################################################
+
+
 defaults: &defaults
   docker:
     - image: docker:18.01.0-ce-git
@@ -16,7 +22,6 @@ defaults: &defaults
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
 
-# TODO: test if I can remove this from sections (and then just source it...)
 loadenv: &loadenv
     name: Define container and Docker names
     command: |
@@ -58,6 +63,12 @@ dockerload: &dockerload
           pigz -d --stdout /tmp/cache/container.tar.gz | docker load
           docker images
       fi
+
+
+################################################################################
+# Jobs
+################################################################################
+
 
 version: 2
 jobs:
@@ -217,6 +228,12 @@ jobs:
             else
                 echo "GITHUB_EMAIL not set, skipping manifest deploy to Github pages"
             fi
+
+
+################################################################################
+# Workflows
+################################################################################
+
 
 workflows:
   version: 2
