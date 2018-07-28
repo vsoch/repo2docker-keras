@@ -15,6 +15,7 @@ defaults: &defaults
   environment:
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
+
 # TODO: test if I can remove this from sections (and then just source it...)
 loadenv: &loadenv
     name: Define container and Docker names
@@ -42,6 +43,7 @@ loadenv: &loadenv
         echo "export REPO_NAME=${REPO_NAME}" >> ${BASH_ENV}
         cat ${BASH_ENV}
         source ${BASH_ENV}
+
 
 dockerload: &dockerload
     <<: *defaults
@@ -153,6 +155,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
+      - setup_remote_docker
       - run: *loadenv
       - run: *dockerload
       - run:
