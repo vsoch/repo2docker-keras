@@ -188,6 +188,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
+      - setup_remote_docker
       - run: *loadenv
       - run: *dockerload
       - run:
