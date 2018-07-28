@@ -1,0 +1,126 @@
+[
+    {
+        "Id": "sha256:13e2b0eecb4d2bb8f3bf0068b4c4e3e8d68c16cad58c42f22064f742e115be14",
+        "RepoTags": [
+            "vanessa/repo2docker-keras:6dbee39dd2"
+        ],
+        "RepoDigests": [
+            "vanessa/repo2docker-keras@sha256:f9d17745a1045891cc37515e2398da83768c1707e9fe5d65199d517a6dee4e75"
+        ],
+        "Parent": "",
+        "Comment": "",
+        "Created": "2018-07-28T13:46:21.023017406Z",
+        "Container": "0f17081dea60df0c969eedbf8c1553477fa113d5d68107777521441b986208a8",
+        "ContainerConfig": {
+            "Hostname": "0f17081dea60",
+            "Domainname": "",
+            "User": "joyvan",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "8888/tcp": {}
+            },
+            "Tty": true,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/srv/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LC_ALL=en_US.UTF-8",
+                "LANG=en_US.UTF-8",
+                "LANGUAGE=en_US.UTF-8",
+                "SHELL=/bin/bash",
+                "USER=joyvan",
+                "HOME=/home/joyvan",
+                "APP_BASE=/srv",
+                "VENV_PATH=/srv/venv",
+                "NB_PYTHON_PREFIX=/srv/venv"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "ArgsEscaped": true,
+            "Image": "vanessa/repo2docker-keras:6dbee39dd2",
+            "Volumes": null,
+            "WorkingDir": "/home/joyvan",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "DockerVersion": "17.09.0-ce",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "joyvan",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "8888/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/srv/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LC_ALL=en_US.UTF-8",
+                "LANG=en_US.UTF-8",
+                "LANGUAGE=en_US.UTF-8",
+                "SHELL=/bin/bash",
+                "USER=joyvan",
+                "HOME=/home/joyvan",
+                "APP_BASE=/srv",
+                "VENV_PATH=/srv/venv",
+                "NB_PYTHON_PREFIX=/srv/venv"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "ArgsEscaped": true,
+            "Image": "",
+            "Volumes": null,
+            "WorkingDir": "/home/joyvan",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 1572928156,
+        "VirtualSize": 1572928156,
+        "GraphDriver": {
+            "Data": null,
+            "Name": "aufs"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:f1b91f8d903cf1125f78407b85f7513a427bfc69d851fff778461e53cc58acce",
+                "sha256:d5ce7f24606728e4b34df8c844ca1fad74d24fcc11c3e4a3b38d117077ed6807",
+                "sha256:5251addbe073e88088288790f450f853171ac333296b6049f694270f7544fc2f",
+                "sha256:41f50d293d3afbe39e131f402644cc586952d5075d0252776194e4b82a6411a4",
+                "sha256:b3c5147f2ed120fe124b06bb4dbb713605431d2f54b33438d08a592d6dbdc704",
+                "sha256:406ddf3f981456345797332bd270c954e553aca544facf92e5355beb9c25711b",
+                "sha256:fad2cc1e78ec1b5255f808388e46fb976ddd789571cee0f666de1b48b71cbd6a",
+                "sha256:4ff60368cd8f409b581b2f75c8da26af0b56a375074e8130ecc3f82acdad5d52",
+                "sha256:1a5a15e0a05194ea7891bf067c3fd5b174f5ddd026d959977420c381dfa98ba0",
+                "sha256:d41c9a1fe274180fb29d483b93fcab5c12060dd4f9612695c0a109bea9de581a",
+                "sha256:206a178fb8b44c0aaab8bf3d7fcdc12fe8b35207f02f4b446b6d3eb078a70f0a",
+                "sha256:128ed6ad2d29f34a6c0cb7f08b29fb7e64d9be38dad9b7482e6aad438f1720f7",
+                "sha256:d6e10c69dc0ec59a8a6d7e36b50514cf0f8a1a6b77d88a44c2913d79956b739c",
+                "sha256:695cc97271770b48c0e4a75b13b0c3de4980d6ed67dfe94c0e96a773fc96e188",
+                "sha256:1d09099ce05205d920006a5914a837b25b2f158ae2affd0352f27346f6a09031",
+                "sha256:82beb4e0aa4e949d48831db93ca665dcfac0b9e9477a172c354fd7b30265615c",
+                "sha256:1515fafd280f6c460b217d952f7b546cb89629774b78f522e694774de30591f4",
+                "sha256:1d5be55947aab09d27808f3d26aa33ece379c1e873ece0169eaede24515a5bc0",
+                "sha256:cdde8d33d5a1e3f8815b5eae9d0c846cc70610b40a216391db3ddbfbbc4df439",
+                "sha256:d6e32853c85f3d688e5b87ced5a7541bd76553611ac1a13c42617e14d887c0b4",
+                "sha256:1cee4abcb2340735940889a7976f7bd647f13f2c5e83291bf8eea0799ffaad0d"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "0001-01-01T00:00:00Z"
+        }
+    }
+]
