@@ -21,6 +21,10 @@ defaults: &defaults
   environment:
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
+installpigz: &installpigz
+    name: Install parallel gzip, python3, and jq
+    command: apk add --no-cache pigz python3 jq
+
 
 loadenv: &loadenv
     name: Define container and Docker names
@@ -55,6 +59,7 @@ containerdiff: &containerdiff
         curl -LO https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64
         chmod +x container-diff-linux-amd64
         mkdir -p /tmp/bin
+        mv container-diff-linux-amd64 /tmp/bin
         export PATH="/tmp/bin:${PATH}"
         # export to bash environment
         echo "export PATH=${PATH}" >> ${BASH_ENV}
@@ -74,6 +79,17 @@ dockerload: &dockerload
       fi
 
 
+dockersave: &dockersave
+    name: Docker Save
+    no_output_timeout: 40m
+    command: |
+        source ${BASH_ENV}
+        echo "Saving ${CONTAINER_NAME}:${DOCKER_TAG} to container.tar.gz"
+        mkdir -p /tmp/cache
+        docker save ${CONTAINER_NAME}:${DOCKER_TAG} \
+          | pigz -2 -p 3 > /tmp/cache/container.tar.gz
+
+
 dockerdeploy: &dockerdeploy
     name: Deploy to Docker Hub
     no_output_timeout: 40m
@@ -85,8 +101,61 @@ dockerdeploy: &dockerdeploy
             docker push ${CONTAINER_NAME}:${DOCKER_TAG}
             echo "Tagging latest image..."
             docker tag ${CONTAINER_NAME}:${DOCKER_TAG} ${CONTAINER_NAME}:latest
-           docker push ${CONTAINER_NAME}:latest
+            docker push ${CONTAINER_NAME}:latest
       fi
+
+githubsetup: &githubsetup
+    name: Prepare Github account credentials
+    command: |
+        # Only proceed if we minimally have a Github email
+        if [[ -n "${GITHUB_EMAIL:-}" ]];
+            then
+                echo "Preparing Github account credentials"
+                git config --global user.email $GITHUB_EMAIL
+                # If username is defined, use it (otherwuse use circle project)
+                if [[ -n "${GITHUB_USER:-}" ]];
+                    then
+                    git config --global user.name $GITHUB_USER
+                else
+                    git config --global user.name $CIRCLE_PROJECT_USERNAME
+                fi
+        fi
+
+
+repo2docker: &repo2docker
+    name: Run jupyter-repo2docker to generate Docker Container
+    no_output_timeout: 60m
+    command: |
+        echo "0. Installing dependencies..."
+        python3 -m venv venv
+        . venv/bin/activate
+        pip install jupyter-repo2docker
+        export VERSION=$(python3 -c "import repo2docker; print(repo2docker.__version__)")
+        echo "repo2docker version: ${VERSION}"
+        echo "1. Preparing building environment"
+        echo "Working directory is ${PWD}"
+        # If not set, define NOTEBOOK_PERMISSION
+        if [ ! -n "${NOTEBOOK_PERMISSION:-}" ]; then
+            NOTEBOOK_PERMISSION=777;
+        fi
+        # If not set, define NOTEBOOK_USERNAME
+        if [ ! -n "${NOTEBOOK_USERNAME:-}" ]; then
+            NOTEBOOK_USERNAME=joyvan;
+        fi
+        source ${BASH_ENV}
+        echo "2. Running jupyter-repo2docker..."
+        echo "jupyter-repo2docker --debug --user-name ${NOTEBOOK_USERNAME} --user-id 1000 --no-run --image-name ${CONTAINER_NAME}:${DOCKER_TAG} ${REPO_NAME}"
+        jupyter-repo2docker --debug --user-name ${NOTEBOOK_USERNAME} --user-id 1000 --no-run --image-name "${CONTAINER_NAME}:${DOCKER_TAG}" "${REPO_NAME}"
+        # Issue command to make /home/${NOTEBOOK_USERNAME} read/write for any user, to support Singularity
+        echo "Changing permissions to chmod -R ${NOTEBOOK_PERMISSION} /home/${NOTEBOOK_USERNAME}"
+        docker run --name repo2docker -td "${CONTAINER_NAME}:${DOCKER_TAG}"
+        docker exec repo2docker chmod -R ${NOTEBOOK_PERMISSION} "/home/${NOTEBOOK_USERNAME}"
+        docker commit repo2docker "${CONTAINER_NAME}:${DOCKER_TAG}"
+        docker ps
+        docker images
+
+# step 1: get into functions
+# step 2: define consistent way to define variavbles for functions
 
 
 ################################################################################
@@ -100,25 +169,13 @@ jobs:
     <<: *defaults
     steps:
       - run: *loadenv
-      - run:
-          name: Test if the user has defined the repository name
-          command: apk add --no-cache pigz python3
-      - run:
-          name: Prepare Github account credentials
-          command: |
-            if [[ -n "${GITHUB_EMAIL:-}" ]];
-                echo "Preparing Github account credentials"
-                # Set username and email to deploy with
-                git config --global user.email $GITHUB_EMAIL
-                git config --global user.name $CIRCLE_PROJECT_USERNAME
-            fi
+      - run: *installpigz
+      - run: *githubsetup
 
   build:
     <<: *defaults
     steps:
-      - run:
-          name: Install parallel gzip and python3
-          command: apk add --no-cache pigz python3
+      - run: *installpigz
       - restore_cache:
           keys:
             - docker-v1-{{ .Branch }}
@@ -129,46 +186,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: *loadenv
-      - run:
-          name: Run jupyter-repo2docker to generate Docker Container
-          no_output_timeout: 60m
-          command: |
-            echo "0. Installing dependencies..."
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install jupyter-repo2docker
-            export VERSION=$(python3 -c "import repo2docker; print(repo2docker.__version__)")
-            echo "repo2docker version: ${VERSION}"
-            echo "1. Preparing building environment"
-            echo "Working directory is ${PWD}"
-            # If not set, define NOTEBOOK_PERMISSION
-            if [ ! -n "${NOTEBOOK_PERMISSION:-}" ]; then
-                NOTEBOOK_PERMISSION=777;
-            fi
-            # If not set, define NOTEBOOK_USERNAME
-            if [ ! -n "${NOTEBOOK_USERNAME:-}" ]; then
-                NOTEBOOK_USERNAME=joyvan;
-            fi
-            source ${BASH_ENV}
-            echo "2. Running jupyter-repo2docker..."
-            echo "jupyter-repo2docker --debug --user-name ${NOTEBOOK_USERNAME} --user-id 1000 --no-run --image-name ${CONTAINER_NAME}:${DOCKER_TAG} ${REPO_NAME}"
-            jupyter-repo2docker --debug --user-name ${NOTEBOOK_USERNAME} --user-id 1000 --no-run --image-name "${CONTAINER_NAME}:${DOCKER_TAG}" "${REPO_NAME}"
-            # Issue command to make /home/${NOTEBOOK_USERNAME} read/write for any user, to support Singularity
-            echo "Changing permissions to chmod -R ${NOTEBOOK_PERMISSION} /home/${NOTEBOOK_USERNAME}"
-            docker run --name repo2docker -td "${CONTAINER_NAME}:${DOCKER_TAG}"
-            docker exec repo2docker chmod -R ${NOTEBOOK_PERMISSION} "/home/${NOTEBOOK_USERNAME}"
-            docker commit repo2docker "${CONTAINER_NAME}:${DOCKER_TAG}"
-            docker ps
-            docker images
-      - run:
-          name: Docker Save
-          no_output_timeout: 40m
-          command: |
-            source ${BASH_ENV}
-            echo "Saving ${CONTAINER_NAME}:${DOCKER_TAG} to container.tar.gz"
-            mkdir -p /tmp/cache
-            docker save ${CONTAINER_NAME}:${DOCKER_TAG} \
-              | pigz -2 -p 3 > /tmp/cache/container.tar.gz
+      - run: *repo2docker
+      - run: *dockersave
       - persist_to_workspace:
           root: /tmp
           paths:
@@ -212,38 +231,41 @@ jobs:
           no_output_timeout: 40m
           command: |
             source ${BASH_ENV}
-            ls /tmp/bin
             which container-diff-linux-amd64
             if [[ -n "${GITHUB_EMAIL:-}" ]];
-
                 then
-                echo "=== Deploying manifests to Github Pages ==="
-                echo "Generating Container Manifest"
-                echo "1. Checking out Github pages branch"
-                git clone $CIRCLE_REPOSITORY_URL out
-                cd out
-                # either checkout github pages, or create orphan
-                git checkout gh-pages || git checkout --orphan gh-pages
-                git rm -rf .
-                # ensure that github pages are ignored
-                mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
-                echo "2. Generating manifest for latest..."
-                docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} >> manifest-latest.json
-                for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
-                  do
-                      # if the manifest doesn't exist, generate it
-                      DOCKER_MANIFEST="manifest-${tag}.json"
-                      if [ ! -f "${DOCKER_MANIFEST}" ];
-                        then
-                          echo "Generating manifest for ${DOCKER_MANIFEST}";
-                          docker pull "${CONTAINER_NAME}:${tag}"
-                          docker inspect "${CONTAINER_NAME}:${tag}" >> "${DOCKER_MANIFEST}";
-                          echo "${tag}" >> tags.json;
-                      fi
-                done
-                git add -A;
-                git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
-                git push origin gh-pages
+                    echo "=== Deploying manifests to Github Pages ==="
+                    echo "Generating Container Manifest"
+                    echo "1. Checking out Github pages branch"
+                    git clone $CIRCLE_REPOSITORY_URL out
+                    cd out
+                    # either checkout github pages, or create orphan
+                    git checkout gh-pages || git checkout --orphan gh-pages
+                    # Save all previous tags, so we don't pull and re-generate
+                    mkdir -p ../out-old
+                    cp *.json ../out-old/
+                    git rm -rf .
+                    # ensure that github pages are ignored
+                    mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
+                    # Copy back previous files
+                    cp ../out-old/*.json ${PWD}
+                    echo "2. Generating manifest for latest..."
+                    docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
+                    for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
+                      do
+                          # if the manifest doesn't exist, generate it
+                          DOCKER_MANIFEST="manifest-${tag}.json"
+                          if [ ! -f "${DOCKER_MANIFEST}" ];
+                            then
+                              echo "Generating manifest for ${DOCKER_MANIFEST}";
+                              docker pull "${CONTAINER_NAME}:${tag}"
+                              docker inspect "${CONTAINER_NAME}:${tag}" >> "${DOCKER_MANIFEST}";
+                              echo "${tag}" >> tags.json;
+                          fi
+                    done
+                    git add -A;
+                    git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
+                    git push origin gh-pages
             else
                 echo "GITHUB_EMAIL not set, skipping manifest deploy to Github pages"
             fi
@@ -260,6 +282,8 @@ workflows:
     jobs:
       - build:
           filters:
+            branches:
+              ignore: gh-pages
             tags:
               only: /.*/
 
