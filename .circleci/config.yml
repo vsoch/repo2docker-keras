@@ -262,11 +262,11 @@ jobs:
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
                     # We will keep a list of tags
-                    tags=()
+                    tags=();
                     for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
                       do
                           # Add the tag to the list
-                          tags+=(${tag})
+                          tags+=(${tag});
                           # if the manifest doesn't exist, generate it
                           DOCKER_MANIFEST="manifest-${tag}.json"
                           if [ ! -f "${DOCKER_MANIFEST}" ];
@@ -278,7 +278,7 @@ jobs:
                           fi
                     done
                     # Write the tags json
-                    printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json
+                    printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > "tags.json";
                     git add -A;
                     git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
                     git push origin gh-pages
