@@ -237,6 +237,7 @@ jobs:
                     echo "=== Deploying manifests to Github Pages ==="
                     echo "Generating Container Manifest"
                     echo "1. Checking out Github pages branch"
+                    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
                     git clone git@github.com:CIRCLE_PROJECT_USERNAME/CIRCLE_PROJECT_REPONAME.git out
                     cd out
                     # either checkout github pages, or create orphan
@@ -264,7 +265,6 @@ jobs:
                           fi
                     done
                     git add -A;
-                    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
                     git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
                     git push origin gh-pages
             else
