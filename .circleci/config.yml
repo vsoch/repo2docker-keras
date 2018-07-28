@@ -237,7 +237,7 @@ jobs:
                     echo "=== Deploying manifests to Github Pages ==="
                     echo "Generating Container Manifest"
                     echo "1. Checking out Github pages branch"
-                    git clone $CIRCLE_REPOSITORY_URL out
+                    git clone git@github.com:CIRCLE_PROJECT_USERNAME/CIRCLE_PROJECT_REPONAME.git out
                     cd out
                     # either checkout github pages, or create orphan
                     git checkout gh-pages || git checkout --orphan gh-pages
