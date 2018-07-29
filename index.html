@@ -653,7 +653,7 @@ body {
   var row;
   $.each(lines, function(i,tag){
   if (tag!="") {
-      row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/vanessa/repo2docker-keras:'+ tag + '" target="_blank">vanessa/repo2docker-keras'+ tag +'</a></td><td data-title="Manifest"><a href="https://vsoch.github.io/repo2docker-keras/manifest-' + tag + '.json" target="_blank">manifest-'+ tag +'.json</a></td><td data-title="Inspect"><a href="https://vsoch.github.io/repo2docker-keras/inspect-' + tag + '.json" target="_blank">inspect-'+ tag +'.json</a></td></tr>';
+      row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/vanessa/repo2docker-keras" target="_blank">vanessa/repo2docker-keras'+ tag +'</a></td><td data-title="Manifest"><a href="https://vsoch.github.io/repo2docker-keras/manifest-' + tag + '.json" target="_blank">manifest-'+ tag +'.json</a></td><td data-title="Inspect"><a href="https://vsoch.github.io/repo2docker-keras/inspect-' + tag + '.json" target="_blank">inspect-'+ tag +'.json</a></td></tr>';
       $('#table-body').append(row);
      }
   });   
