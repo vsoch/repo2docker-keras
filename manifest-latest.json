@@ -1,16 +1,16 @@
 [
     {
-        "Id": "sha256:ec5c18291ed40c30c6d0465588b48b67f647fd97e6f359f928b71ec6f9cf0f2c",
+        "Id": "sha256:02c83a1edfef50fc9b6b4f0ae446f95bcfb836c9a2fe3b8fd6d83473101aefb5",
         "RepoTags": [
-            "vanessa/repo2docker-keras:8f38ce2bc9"
+            "vanessa/repo2docker-keras:42a4057ab6"
         ],
         "RepoDigests": [],
         "Parent": "",
         "Comment": "",
-        "Created": "2018-07-29T21:36:24.565092424Z",
-        "Container": "63fc329c7ac7fb79c2272987266bc4b139a3c5176142d513bbb9aae3634e2c64",
+        "Created": "2018-07-29T22:21:46.692239356Z",
+        "Container": "90addc70a67722d9ac2d5b6d56911ab449adb52c793ba1edc8f60ff7aef1c181",
         "ContainerConfig": {
-            "Hostname": "63fc329c7ac7",
+            "Hostname": "90addc70a677",
             "Domainname": "",
             "User": "joyvan",
             "AttachStdin": false,
@@ -38,7 +38,7 @@
                 "/bin/bash"
             ],
             "ArgsEscaped": true,
-            "Image": "vanessa/repo2docker-keras:8f38ce2bc9",
+            "Image": "vanessa/repo2docker-keras:42a4057ab6",
             "Volumes": null,
             "WorkingDir": "/home/joyvan",
             "Entrypoint": null,
@@ -85,8 +85,8 @@
         },
         "Architecture": "amd64",
         "Os": "linux",
-        "Size": 1576928829,
-        "VirtualSize": 1576928829,
+        "Size": 1576938918,
+        "VirtualSize": 1576938918,
         "GraphDriver": {
             "Data": null,
             "Name": "aufs"
@@ -102,19 +102,19 @@
                 "sha256:406ddf3f981456345797332bd270c954e553aca544facf92e5355beb9c25711b",
                 "sha256:fad2cc1e78ec1b5255f808388e46fb976ddd789571cee0f666de1b48b71cbd6a",
                 "sha256:4ff60368cd8f409b581b2f75c8da26af0b56a375074e8130ecc3f82acdad5d52",
-                "sha256:cf0d4a5cf02e0b609f33f6b53101dbc2a26ee45d258c24ddf6af7b0ba68bc4d8",
-                "sha256:337f0f2d9bb10f63d8750a5644030df6de626fe77ee1bb2470366cba8c8873a2",
-                "sha256:63d3ed51464c67ec0dade42201810817184fbb33e30d42539cd2739ab5f41671",
-                "sha256:b870f252b8d79f90dad4eaffda0e619086bbadc6e6fd85d75bb04b8e4b1482ec",
-                "sha256:b8454bc5a88a7d7eea025e14df32a23a6d7d3fc047621e9b760ad51d624d53d7",
-                "sha256:fa7d34eecb3c36e7afedefb69c6e76a67fe0d07d84c3c48dd2408b2b4dd72069",
-                "sha256:974295408e0733b958c31994c07d9b50eabc615b1d618b40c5bb39a4a7ff692f",
-                "sha256:150cbea14a9b9301debd41a249392f8ce60ad47fad57b046e154c4da311f9455",
-                "sha256:6b72c8e748556b74c9627309ca0e6c0cec002ebe74eca21d258a5b749831ad0d",
-                "sha256:8a737341c76b86999f897d4b6e67f265580dcd3453e42093205ab2ff5a509e91",
-                "sha256:164cd535f0b0de4498e6b831b215ae5ad52e0ebfb7f7ca8e15d353921396c84d",
-                "sha256:c070df73bc080778cd1c6904bb25283c6344aa70185a467dfce2c2ab23c76d42",
-                "sha256:d5047110c9f09f59f00202d1efc71721e5f6648825766715f0b1f0e4f0fc9981"
+                "sha256:169650fab08cbd06bdbcf7b6a9f1e9d987bcc8433da1a7d741a9270fef5f97eb",
+                "sha256:e59c4fe40e495ff26ce2675c9872204afa4e44ce9f8822fa7a64c0fc0d4962e4",
+                "sha256:8cf4535210507a0157dc084848a002b79ed56f1dcd5074048da7e7aa79ead3e5",
+                "sha256:90dfa95a1f3577e6460f130282fcfb0445757bd6ed25b45c6da580a4f5cd87f7",
+                "sha256:f947748324d58f68d9a452d5a4d6f10a7aa4b70811b84b5bcbbd2d893a987d76",
+                "sha256:b6e6c01b5c2ca21874fb9a9417a45a24ee6144cec71128bd8c7f0f82e8cea54e",
+                "sha256:d2691f4f7c58f34d4c33e144fb3f5c37ee28093ab5dddec09871a760e2194118",
+                "sha256:19e34c89f7139fc1888cdb48559d3c03c223f65cb8c26c13a2f55707869ec105",
+                "sha256:571f31b88ad906d8e11712eea59365068a8e45bd9260237d809a5b105e98f72b",
+                "sha256:6f0dce366445579ed7b701cb02743a9250a56b2c0d1420ea1e0bcb4950902a43",
+                "sha256:889bacd0e97f42b3383f4c8a056c6040f072ffa18b4345d0303929aafd68a94b",
+                "sha256:ef4a3fe7f3c489ab42e1d32bae206a2762cdcc5f1af28d4db8aa7431dba2a6ef",
+                "sha256:c7a35537ee9694ee83f2cf815571c2c4de2f8b15443c57ad2eea76598c45bc3c"
             ]
         },
         "Metadata": {
