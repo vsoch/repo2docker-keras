@@ -613,10 +613,7 @@ body {
 
   <div id="demo">
   <h1>$CONTAINER_NAME</h1>
-  <h2>Table of my containers and associated tags available on Docker Hub</h2>
-  
-  <!-- Responsive table starts here -->
-  <!-- For correct display on small screens you must add 'data-title' to each 'td' in your table -->
+  <h2>Table of my containers and associated tags available on Docker Hub</h2>  
   <div class="table-responsive-vertical shadow-z-1">
   <!-- Table starts here -->
   <table id="table" class="table table-hover table-mc-light-blue">
@@ -625,13 +622,14 @@ body {
           <th>ID</th>
           <th>Tag</th>
           <th>Link</th>
+          <th>Manifest</th>
+          <th>Inspect</th>
         </tr>
       </thead>
       <tbody id='table-body'>
       </tbody>
     </table>
-  </div>
-  
+  </div>  
   <!-- Table Constructor change table classes, you don't need it in your project -->
   <div style="width: 45%; display: inline-block; vertical-align: top">
   <h2>Support</h2>
@@ -653,7 +651,7 @@ body {
   var lines = data.split("\n");
   var row;
   $.each(lines, function(i,tag){
-  row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/$CONTAINER_NAME:'+ tag + '" target="_blank">$CONTAINER_NAME'+ tag +'</a></td></tr>';
+  row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/$CONTAINER_NAME:'+ tag + '" target="_blank">$CONTAINER_NAME'+ tag +'</a></td><td data-title="Manifest"><a href="https://${CIRCLE_PROJECT_USERNAME}.github.io/${CIRCLE_PROJECT_REPONAME}/manifest-' + tag + '".json" target="_blank">manifest-'+ tag +'.json</a></td><td data-title="Inspect"><a href="https://${CIRCLE_PROJECT_USERNAME}.github.io/${CIRCLE_PROJECT_REPONAME}/inspect-' + tag + '".json" target="_blank">inspect-'+ tag +'.json</a></td></tr>';
   $('#table-body').append(row);
   });   
   }, 'text');
