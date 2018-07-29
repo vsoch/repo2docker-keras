@@ -265,7 +265,6 @@ jobs:
                     for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
                       do
                           # Add the tag to the list
-                          tags+=("${tag}");
                           # when manifest doesn't exist, generate it
                           DOCKER_MANIFEST="manifest-${tag}.json"
                           if [ ! -f "${DOCKER_MANIFEST}" ];
@@ -274,7 +273,7 @@ jobs:
                               docker pull "${CONTAINER_NAME}:${tag}";
                               docker inspect "${CONTAINER_NAME}:${tag}" > "${DOCKER_MANIFEST}";
                               /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json";
-                              echo ${tag} >> tags.json
+                              echo "${tag}" >> tags.json
                           fi
                     done
                     # Write the tags json
