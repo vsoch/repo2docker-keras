@@ -13,7 +13,7 @@
 # Functions
 ################################################################################
 
-
+# Defaults
 defaults: &defaults
   docker:
     - image: docker:18.01.0-ce-git
@@ -21,12 +21,31 @@ defaults: &defaults
   environment:
     - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
 
+
+# Installation
 installpigz: &installpigz
     name: Install parallel gzip, python3, and jq
     command: apk add --no-cache pigz python3 jq
 
+# Environment
+sourceenv: &sourceenv
+    name: Source environment variables from the BASH_ENV
+    command: source $BASH_ENV 
 
-loadenv: &loadenv
+
+containerdiff: &containerdiff
+    name: Download and add container-diff to path
+    command: |
+        curl -LO https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64
+        chmod +x container-diff-linux-amd64
+        mkdir -p /tmp/bin
+        mv container-diff-linux-amd64 /tmp/bin
+        export PATH="/tmp/bin:${PATH}"
+        # export to bash environment
+        echo "export PATH=${PATH}" >> ${BASH_ENV}
+
+
+dockerenv: &dockerenv
     name: Define container and Docker names
     command: |
         # If not set, define DOCKER_TAG
@@ -51,18 +70,6 @@ loadenv: &loadenv
         echo "export DOCKER_TAG=${DOCKER_TAG}" >> ${BASH_ENV}
         echo "export REPO_NAME=${REPO_NAME}" >> ${BASH_ENV}
         cat ${BASH_ENV}
-
-
-containerdiff: &containerdiff
-    name: Download and add container-diff to path
-    command: |
-        curl -LO https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64
-        chmod +x container-diff-linux-amd64
-        mkdir -p /tmp/bin
-        mv container-diff-linux-amd64 /tmp/bin
-        export PATH="/tmp/bin:${PATH}"
-        # export to bash environment
-        echo "export PATH=${PATH}" >> ${BASH_ENV}
 
 
 dockerload: &dockerload
@@ -168,7 +175,7 @@ jobs:
   setup:
     <<: *defaults
     steps:
-      - run: *loadenv
+      - run: *dockerenv
       - run: *installpigz
       - run: *githubsetup
 
@@ -185,7 +192,7 @@ jobs:
           key: dependency-cache-repo2docker
       - checkout
       - setup_remote_docker
-      - run: *loadenv
+      - run: *dockerenv
       - run: *repo2docker
       - run: *dockersave
       - persist_to_workspace:
@@ -210,7 +217,7 @@ jobs:
       - attach_workspace:
           at: /tmp
       - setup_remote_docker
-      - run: *loadenv
+      - run: *dockerenv
       - run: *dockerload
       - run: *dockerdeploy
 
@@ -220,7 +227,7 @@ jobs:
       - attach_workspace:
           at: /tmp
       - setup_remote_docker
-      - run: *loadenv
+      - run: *dockerenv
       - run: *dockerload
       - run: *containerdiff
       - run: *githubsetup
@@ -254,19 +261,23 @@ jobs:
                     cp ../out-old/*.json ${PWD}
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
+                    # We will keep a list of tags
                     for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
                       do
-                          # if the manifest doesn't exist, generate it
+                          # Add the tag to the list
+                          # when manifest doesn't exist, generate it
                           DOCKER_MANIFEST="manifest-${tag}.json"
                           if [ ! -f "${DOCKER_MANIFEST}" ];
                             then
                               echo "Generating manifest for ${DOCKER_MANIFEST}";
-                              docker pull "${CONTAINER_NAME}:${tag}"
+                              docker pull "${CONTAINER_NAME}:${tag}";
                               docker inspect "${CONTAINER_NAME}:${tag}" > "${DOCKER_MANIFEST}";
-                              echo "${tag}" >> tags.json;
-                              /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json"
+                              /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json";
+                              echo "${tag}" >> tags.json
                           fi
                     done
+                    # Write the tags json
+                    # printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json;
                     git add -A;
                     git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
                     git push origin gh-pages
@@ -298,7 +309,7 @@ workflows:
             - manifest
           filters:
             branches:
-              ignore: /docs?\/.*/
+              ignore: /docs?/.*/
             tags:
               only: /.*/
 
@@ -308,7 +319,7 @@ workflows:
             - build
           filters:
             branches:
-              ignore: /docs?\/.*/
+              only: master
             tags:
               only: /.*/
 
@@ -319,7 +330,6 @@ workflows:
             - deploy
           filters:
             branches:
-              ignore: /docs?\/.*/
-              ignore: gh-pages
+              only: master
             tags:
               only: /.*/
