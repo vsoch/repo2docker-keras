@@ -262,7 +262,7 @@ jobs:
                     cp .circleci/index.html index.html
                     # replace container name in index.html
                     # sed -i -e 's@{{CONTAINER_NAME}}@'"$CONTAINER_NAME"'@' index.html
-                    envsubst < index.html > index.html
+                    envsubst < template.html > index.html
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
                     # We will keep a list of tags
