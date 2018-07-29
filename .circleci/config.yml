@@ -277,8 +277,8 @@ jobs:
                               docker pull "${CONTAINER_NAME}:${tag}";
                               docker inspect "${CONTAINER_NAME}:${tag}" > "${DOCKER_MANIFEST}";
                               /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json";
-                              echo "${tag}" >> tags.json
                           fi
+                          echo "${tag}" >> tags.json
                     done
                     # Write the tags json
                     # printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json;
