@@ -334,6 +334,3 @@ workflows:
               only: master
             tags:
               only: /.*/
-
-
- /bin/bash -c "printf '%s\n' \"${tags[@]}\" | jq -R . | jq -s ."
