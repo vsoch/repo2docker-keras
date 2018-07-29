@@ -2,6 +2,7 @@
 # continuous build. We have added the section to calculate container similarity
 # metrics, and deploy the metrics back to the repository (on Github pages)
 # as an image manifest.
+
 # https://github.com/vsoch/continuous-build/tree/support/singularity/.circleci
 
 # In addition to the variables defined above, you should set the GITHUB_EMAIL
