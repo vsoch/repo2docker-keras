@@ -282,6 +282,8 @@ jobs:
                           fi
                           echo "${tag}" >> tags.json
                     done
+                    # Copy the inspect to latest
+                    cp "inspect-${CONTAINER_TAG}.json" inspect-latest.json
                     # Write the tags json
                     # printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json;
                     git add -A;
