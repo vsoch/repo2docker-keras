@@ -2,6 +2,7 @@
 # continuous build. We have added the section to calculate container similarity
 # metrics, and deploy the metrics back to the repository (on Github pages)
 # as an image manifest.
+
 # https://github.com/vsoch/continuous-build/tree/support/singularity/.circleci
 
 # In addition to the variables defined above, you should set the GITHUB_EMAIL
@@ -277,8 +278,8 @@ jobs:
                               docker pull "${CONTAINER_NAME}:${tag}";
                               docker inspect "${CONTAINER_NAME}:${tag}" > "${DOCKER_MANIFEST}";
                               /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json";
-                              echo "${tag}" >> tags.json
                           fi
+                          echo "${tag}" >> tags.json
                     done
                     # Write the tags json
                     # printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json;
