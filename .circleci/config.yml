@@ -266,19 +266,19 @@ jobs:
                     for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
                       do
                           # Add the tag to the list
-                          tags+=(${tag});
-                          # if the manifest doesn't exist, generate it
+                          tags+=("${tag}");
+                          # when manifest doesn't exist, generate it
                           DOCKER_MANIFEST="manifest-${tag}.json"
                           if [ ! -f "${DOCKER_MANIFEST}" ];
                             then
                               echo "Generating manifest for ${DOCKER_MANIFEST}";
-                              docker pull "${CONTAINER_NAME}:${tag}"
+                              docker pull "${CONTAINER_NAME}:${tag}";
                               docker inspect "${CONTAINER_NAME}:${tag}" > "${DOCKER_MANIFEST}";
-                              /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json"
+                              /tmp/bin/container-diff-linux-amd64 analyze "${CONTAINER_NAME}:${tag}" --type=pip --type=file --type=apt --type=history --json > "inspect-${tag}.json";
                           fi
                     done
                     # Write the tags json
-                    printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > "tags.json";
+                    printf '%s\n' "${tags[@]}" | jq -R . | jq -s . > tags.json;
                     git add -A;
                     git commit -m "Automated deployment to GitHub Pages ${CIRCLE_SHA1}" --allow-empty
                     git push origin gh-pages
