@@ -259,6 +259,7 @@ jobs:
                     mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
                     # Copy back previous files
                     cp ../out-old/*.json ${PWD}
+                    cp .circleciindex.html/ index.html 
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
                     # We will keep a list of tags
