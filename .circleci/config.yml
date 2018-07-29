@@ -23,9 +23,9 @@ defaults: &defaults
 
 
 # Installation
-installpigz: &installpigz
-    name: Install parallel gzip, python3, and jq
-    command: apk add --no-cache pigz python3 jq
+install: &install
+    name: Install parallel gzip, gettext, python3, and jq
+    command: apk add --no-cache pigz python3 gettext jq
 
 # Environment
 sourceenv: &sourceenv
@@ -176,13 +176,13 @@ jobs:
     <<: *defaults
     steps:
       - run: *dockerenv
-      - run: *installpigz
+      - run: *install
       - run: *githubsetup
 
   build:
     <<: *defaults
     steps:
-      - run: *installpigz
+      - run: *install
       - restore_cache:
           keys:
             - docker-v1-{{ .Branch }}
@@ -231,7 +231,7 @@ jobs:
       - run: *dockerload
       - run: *containerdiff
       - run: *githubsetup
-      - run: *installpigz
+      - run: *install
       - add_ssh_keys: 
           fingerprints: 
             - "d4:37:a4:3b:1e:ea:eb:6a:b7:e3:0a:52:e2:8c:ac:d0"
@@ -261,7 +261,8 @@ jobs:
                     cp ../out-old/*.json ${PWD}
                     cp .circleci/index.html index.html
                     # replace container name in index.html
-                    sed -i -e 's@{{CONTAINER_NAME}}@'"$CONTAINER_NAME"'@' index.html
+                    # sed -i -e 's@{{CONTAINER_NAME}}@'"$CONTAINER_NAME"'@' index.html
+                    envsubst < index.html > index.html
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
                     # We will keep a list of tags

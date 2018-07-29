@@ -612,7 +612,7 @@ body {
 <body>
 
   <div id="demo">
-  <h1>{{CONTAINER_NAME}}</h1>
+  <h1>$CONTAINER_NAME</h1>
   <h2>Table of my containers and associated tags available on Docker Hub</h2>
   
   <!-- Responsive table starts here -->
@@ -653,7 +653,7 @@ body {
   var lines = data.split("\n");
   var row;
   $.each(lines, function(i,tag){
-  row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/{{CONTAINER_NAME}}:'+ tag + '" target="_blank">{{CONTAINER_NAME}}'+ tag +'</a></td></tr>';
+  row = '<tr><td data-title="ID">'+ parseInt(i+1) +'</td><td data-title="Name">' + tag + '</td><td data-title="Link"><a href="https://hub.docker.com/r/$CONTAINER_NAME:'+ tag + '" target="_blank">$CONTAINER_NAME'+ tag +'</a></td></tr>';
   $('#table-body').append(row);
   });   
   }, 'text');
