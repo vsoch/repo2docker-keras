@@ -259,9 +259,8 @@ jobs:
                     mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
                     # Copy back previous files
                     cp ../out-old/*.json ${PWD}
-                    cp .circleci/index.html index.html
+                    cp .circleci/template.html template.html
                     # replace container name in index.html
-                    # sed -i -e 's@{{CONTAINER_NAME}}@'"$CONTAINER_NAME"'@' index.html
                     envsubst < template.html > index.html
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
