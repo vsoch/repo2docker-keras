@@ -254,7 +254,8 @@ jobs:
                     git checkout gh-pages || git checkout --orphan gh-pages
                     # Save all previous tags, so we don't pull and re-generate
                     mkdir -p ../out-old
-                    cp *.json ../out-old/
+                    cp manifest*.json ../out-old/
+                    cp inspect*.json ../out-old/
                     git rm -rf .
                     # ensure that github pages are ignored
                     mkdir -p .circleci && cp -a ../.circleci/. .circleci/.
@@ -266,7 +267,7 @@ jobs:
                     echo "2. Generating manifest for latest..."
                     docker inspect ${CONTAINER_NAME}:${DOCKER_TAG} > manifest-latest.json
                     # We will keep a list of tags
-                    echo "latest" > tags.json
+                    touch tags.json
                     for tag in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/${CONTAINER_NAME}/tags?page_size=1024" | jq --raw-output '."results"[]["name"]')
                       do
                           # Add the tag to the list
